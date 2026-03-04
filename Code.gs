@@ -2,7 +2,7 @@
 
 // LOG DEBUG SWITCHES //
 
-const dev = false, dbg = false, dCl = false, dBd = false;
+const dev = true, dbg = false, dCl = false, dBd = false;
 
 // CACHED API KEY //
 
@@ -101,7 +101,7 @@ var P_DCD = /(?: |%)/;
 var P_DSH = /-{0,2}/;
 var P_DTP = /!DOCTYPE/i;
 var P_EJH = /^\s*/;
-var P_EML = /[A-Za-z\s<>@\.]+/;
+var P_EML = /[A-Za-z\d\s<>@\.\/:="]+/;
 var P_HLK = /<(h\d|a\b)/i;
 var P_LS = /[\n\r>]/;
 var P_LBM = /(?:^|[\n\r]|>)/;
@@ -115,13 +115,14 @@ var P_NEJ = /[^\p{Emoji_Presentation}\p{Extended_Pictographic}]/u;
 var P_NLB = /[^\n\r]/;
 var P_NTG = /[^<>]*?/;
 var P_NU = /\d+/;
-var P_NU2 = /\d{1,2}/;
+var P_N12 = /\d{1,2}/;
+var P_NU2 = /\d{2}/;
 var P_NUL = /[\divx]{1,3}/;
 var P_OLC = /(?:[\n\r]|$)/;
 var P_OLO = /(?:[\n\r]|^)/;
-var P_PCT = /[,:\?!@\(\);<>\/\\=\|]/;
+var P_PCT = /[\?!@\(\);<>\/\\=\|]/;
 var P_QTS = /["']/;
-var P_SF1 = /(?:(?:(?:(?:(?:Kind|Warm)(?:est|)|Best|Thank(?:s|\s*[Yy]ou)\s*(?:and|&)\s*([Kk]ind)?)\s*[Rr]egards?)|Best|(?:Kind|Warm)(?:ly|)|Regards|With [Aa]dmiration))/;
+var P_SF1 = /(?:(?:(?:(?:(?:Kind|Warm)(?:est|)|Best|Thank(?:s|\s*[Yy]ou)\s*(?:and|&)\s*(?:[Kk]ind)?)\s*[Rr]egards?)|Best|(?:Kind|Warm)(?:ly|)|Regards|With [Aa]dmiration))/;
 var P_SF2 = /Sincerely(?: [Yy]ours|)|Thank(?:s| [Yy]ou)(?: for [\w ]+?)|Yours(?: [Tt]ruly|Sincerely)?|Signed/;
 var P_SPC = /[:!\.\?,]/;
 var P_SNC = /[\w\p{P}]+?/u;
@@ -147,61 +148,61 @@ var S_WS = /\s+/g;
 
 var CH_BD = new RegExp(`(?<emj>${CH_EJ.source} *)?${P_BDO.source}(?<num>[${P_NUL.source}\\. +)?(?<cnt>${P_ACN.source})${P_BDC.source}`, `gui`);
 var CH_BNU = new RegExp(`(?:${P_SF1.source}|${P_SF2.source})${P_SPC.source}?(?:${P_ATG.source}|)${P_ALB.source}+${P_BDO.source}(${P_ACN.source})${P_BDC.source}`, `gim`);
-var CH_BEJ = new RegExp(`${P_LBM.source}(${CH_EJ.source}${P_WS.source}[A-Za-z\d]${P_NLB.source}${P_NEJ.source}+?)${P_LBM.source}`, `gumi`);
+var CH_BEJ = new RegExp(`${P_LBM.source}(${CH_EJ.source}\\s*[A-Za-z\d]${P_NLB.source}${P_NEJ.source}+?)${P_LBM.source}`, `gumi`);
 var CH_BLN = new RegExp(`${P_EJH.source}${CH_EJ.source} ? *${P_LRN.source}`, `u`);
 var CH_BLT = new RegExp(`<ul${P_TSX.source}`, `gi`);
-var CH_BLX = new RegExp(`${P_LBM.source}(${P_BL.source})${P_WS.source}${P_NLB.source}+$${P_ALB.source}`, `gmi`);
+var CH_BLX = new RegExp(`${P_LBM.source}(${P_BL.source})\\s*${P_NLB.source}+$${P_ALB.source}`, `gmi`);
 var CH_HRL = new RegExp(`<hr${P_TSX.source}`, `gi`);
 var CH_HTG = new RegExp (`<h\\d\\b${P_TSX.source}`, `gi`);
-var CH_ITC = new RegExp(`<(?:\\b(?:em|i)\\b|${P_NTG.source}font-style:${P_WS.source}italic)${P_TSX.source}`, `gi`);
+var CH_ITC = new RegExp(`<(?:\\b(?:em|i)\\b|${P_NTG.source}font-style:\\s*italic)${P_TSX.source}`, `gi`);
 var CH_NUT = new RegExp(`<ol${P_TSX.source}`, `gi`);
 var CH_NUX = new RegExp(`${P_LBM.source}${P_STB.source}[${P_NUL.source}[\\.\\)]\\s+${P_NLB.source}+?(?:$|${P_LE.source})`, `gm`);
-var CH_PH = new RegExp(`(?:you(?:\\sare|${P_APH.source}re)${P_WS.source}(?:absolutely|completely)${P_WS.source}(?:right|correct)|that(?:${P_APH.source}s|\\sis)${P_WS.source}a?${P_WS.source}(?:great|good)\\squestion|i\\scompletely\\sunderstand|(?:just\\sto|let${P_APH.source}s)${P_WS.source}(?:clarify|be\\sclear)|would\\syou\\sbe${P_WS.source}(?:interested\\sin|open\\sto)|no${P_WS.source}(?:strings\\sattached|pressure)|totally\\sfair|that(?:\\sis|${P_APH.source}s)\\son\\sme|thank(?:s|\\syou)${P_WS.source}(?:so|very|)${P_WS.source}(?:much|)\\sfor\\syour${P_WS.source}(?:kind|thoughtful|kind${P_WS.source}(?:and|&|&amp;)\\sthoughtful)${P_WS.source}(?:reply|rsps|message|email|question)|i\\stake${P_WS.source}(?:full|total|complete|)${P_WS.source}responsibility|i\\sjust${P_WS.source}(?:wanted|had)\\sto|(?:y[eu]p|got\\sit)${P_WS.source}(?:${CH_EMD.source}))${P_SPC.source}?`, `gui`);
+var CH_PH = new RegExp(`(?:you(?:\\sare|${P_APH.source}re)\\s*(?:absolutely|completely)\\s*(?:right|correct)|that(?:${P_APH.source}s|\\sis)\\s*a?\\s*(?:great|good)\\squestion|i\\scompletely\\sunderstand|(?:just\\sto|let${P_APH.source}s)\\s*(?:clarify|be\\sclear)|would\\syou\\sbe\\s*(?:interested\\sin|open\\sto)|no\\s*(?:strings\\sattached|pressure)|totally\\sfair|that(?:\\sis|${P_APH.source}s)\\son\\sme|thank(?:s|\\syou)\\s*(?:so|very|)\\s*(?:much|)\\sfor\\syour\\s*(?:kind|thoughtful|kind\\s*(?:and|&|&amp;)\\sthoughtful)\\s*(?:reply|response|message|email|question)|thank\\syou\\sfor\\s(?:clarifying|your\\sclarification)|i\\stake\\s*(?:full|total|complete|)\\s*responsibility|i\\sjust\\s*(?:wanted|had)\\sto|(?:y[eu]p|got\\sit)\\s*(?:${CH_EMD.source}))${P_SPC.source}?`, `gui`);
 var CH_QA = new RegExp(`(?:Short answer|Why|The (?:${P_SNC.source} *){1,2})\\? *[A-Z](?:${P_SNC.source} *){1,10}(?:${P_ATG.source})?\\.`, `gu`);
 var CH_SF = new RegExp(`${P_LBM.source}(${P_SF1.source}${P_SPC.source}?)${P_LEM.source}`, `m`);
 var CH_SF2 = new RegExp(`${P_LBM.source}(${P_SF2.source}${P_SPC.source}?)${P_LEM.source}`, `im`);
 var CL_CLB = new RegExp(`(?:${P_STB.source}${P_ALB.source})+${P_STB.source}|[ \\t]{8,}`, `g`);
 var CL_CMT = new RegExp(`<!(?${P_DTP.source})${P_DSH.source} *\\[?${P_CMI.source}\\]? *${P_DSH.source}>${P_DSH.source}>?|\\/\\*\\[?${P_CMI.source}\\*\\/|^ *${P_CMI.source} *-{2}>$`, `gim`)
-var CL_DTY = new RegExp(`<${P_WS.source}${P_DTP.source}${P_NTG.source}>`, `i`);
+var CL_DTY = new RegExp(`<\\s*${P_DTP.source}${P_NTG.source}>`, `i`);
 var CL_XBT = new RegExp(`(${P_ATG.source})>`, `g`);
-var CL_HDN = new RegExp(`<(?<tag>(?!br)\\w+)${P_WS.source}${P_NTG.source}(?:aria-hidden="true"|style=")${P_NTG.source}(?:[^-]color:${P_WS.source}transparent|display:${P_WS.source}none|(?:(?:line|max)-?(?:height|width)|(?<!-)(?:height|weight)|font-size|opacity):${P_WS.source}(?:0|calc\(?<pct>[\\d[a-zA-Z%]+)${P_WS.source}-${P_WS.source}\\k<pct>\\)|mso-hide:${P_WS.source}all|visibility:${P_WS.source}hidden))${P_TSX.source}${P_NTG.source}<\\/\\k<tag>>`, `gi`);
-var CL_HDS = new RegExp(`<(?<tag>\\w+)${P_WS.source}${P_NTG.source}(?:aria-hidden="true"|style=")${P_NTG.source}(?:[^-]color:${P_WS.source}transparent|display:${P_WS.source}none|(?:(?:line|max)-?(?:height|width)|(?<!-)(?:height|weight)|font-size|opacity):${P_WS.source}(?:0|calc(?<pct>[\\d[a-zA-Z%]+)${P_WS.source}-${P_WS.source}\\k<pct>\\)|mso-hide:${P_WS.source}all|visibility:${P_WS.source}hidden))${P_NTG.source} ?\\/>`, `gi`);
+var CL_HDN = new RegExp(`<(?<tag>(?!br)\\w+)\\s*${P_NTG.source}(?:aria-hidden="true"|style=")${P_NTG.source}(?:[^-]color:\\s*transparent|display:\\s*none|(?:(?:line|max)-?(?:height|width)|(?<!-)(?:height|weight)|font-size|opacity):\\s*(?:0|calc\(?<pct>[\\d[a-zA-Z%]+)\\s*-\\s*\\k<pct>\\)|mso-hide:\\s*all|visibility:\\s*hidden))${P_TSX.source}${P_NTG.source}<\\/\\k<tag>>`, `gi`);
+var CL_HDS = new RegExp(`<(?<tag>\\w+)\\s*${P_NTG.source}(?:aria-hidden="true"|style=")${P_NTG.source}(?:[^-]color:\\s*transparent|display:\\s*none|(?:(?:line|max)-?(?:height|width)|(?<!-)(?:height|weight)|font-size|opacity):\\s*(?:0|calc(?<pct>[\\d[a-zA-Z%]+)\\s*-\\s*\\k<pct>\\)|mso-hide:\\s*all|visibility:\\s*hidden))${P_NTG.source} ?\\/>`, `gi`);
 var CL_LK = new RegExp(`${P_TAO.source}${P_ACN.source}${P_TAC.source}`, `gi`);
 var CL_LKA = new RegExp(`${P_LKO.source}${P_NTG.source}>`, `gi`);
-var CL_LKE = new RegExp(`${P_TAO.source}${P_WS.source}${P_TAC.source}`, `gi`);
+var CL_LKE = new RegExp(`${P_TAO.source}\\s*${P_TAC.source}`, `gi`);
 var CL_MD = new RegExp(`${P_MD.source}{1,3}(${P_ACR.source}?)${P_MD.source}{1,3}`, `g`);
 var CL_MBD = new RegExp(`${P_MD.source}{2}${P_AC1.source}${P_MD.source}{2}`, `g`);
 var CL_MBT = new RegExp(`${P_MD.source}{3}${P_AC1.source}${P_MD.source}{3}`, `g`);
 var CL_MIT = new RegExp(`${P_MD.source}${P_AC1.source}${P_MD.source}`, `g`);
 var CL_MSK = new RegExp(`~~${P_AC1.source}~~`, "g");
-var CL_PVS = new RegExp(`\\b(?:On${P_WS.source}(?:${P_NU2.source}${P_WS.source})?(?:(?:Jan|Febr?)(?:uary|)|March|April|May|June|July|Aug(?:ust|)|(?:Sept|Nov|Dec)(?:ember|)|Oct(?:ober|))\\.?(?:${P_WS.source}\\d{1,2})?,?${P_WS.source}\\d{4}(?:${P_WS.source}at)?${P_WS.source}${P_NU2.source}:\\d{2}(?::\\d{2})?${P_WS.source}[AaPp][Mm](?:${P_WS.source}[A-Z]{3})?,?${P_WS.source}${P_EML.source}${P_WS.source}wrote:|(?:(?:(?:Begin${P_WS.source}|${P_WS.source}-{2,10}${P_WS.source})[Ff]orwarded|[Oo]riginal)${P_WS.source}[Mm]essage)(?:${P_WS.source}-{2,6}${P_WS.source}|:)|\n(?:${P_BDO.source})?From:\s${P_EML.source}\n)${P_ACR.source}$`);
-var CL_TBC = new RegExp(`^${P_WS.source}style=${P_QTS.source}${P_NTG.source}>`, `gm`);
+var CL_PVS = new RegExp(`\\b(?:On\\s*(?:(?:Mon|Tues|Wed|Thurs|Fri|Sat|Sun)(?:day)?)?,?\\s*(?:${P_N12.source}\\s*)?(?:(?:Jan|Febr?)(?:uary)?|March|April|May|June|July|Aug(?:ust)?|(?:Sept|Nov|Dec)(?:ember)?|Oct(?:ober|))\\.?(?:\\s*${P_N12.source})?,?\\s*\\d{4}(?:\\s*at)?\\s*${P_N12.source}:${P_N12.source}(?::${P_N12.source})?\\s*[AaPp][Mm](?:\\s*[A-Z]{3})?,?\\s*${P_EML.source}\\s*wrote:|(?:(?:(?:Begin\\s*|\\s*-{2,10}\\s*)[Ff]orwarded|[Oo]riginal)\\s*[Mm]essage)(?:\\s*-{2,6}\\s*|:)|\\n(?:${P_BDO.source})?From:\\s*${P_EML.source}\\n)${P_ACR.source}$`);
+var CL_TBC = new RegExp(`^\\s*style=${P_QTS.source}${P_NTG.source}>`, `gm`);
 var CL_TFG = new RegExp(`<(figure|figcaption)${P_TSX.source}${P_ACN.source}${P_TCC.source}`, `gi`);
 var CL_TFR = new RegExp(`fr-original-style${P_SEQ.source}"[^">]*(?:"[^">]*"[^">]*)*"`, `gi`);
 var CL_TSP = new RegExp(`${P_TSO.source}(?:${P_TSP.source})${P_TSC.source}${P_TSX.source}`, `gi`);
-var CL_TSR = new RegExp(`${P_TSO.source}(?:${P_TSR.source})${P_TSC.source}${P_NTG.source}${P_WS.source}\\/?>`, `gi`);
-var CL_TDE = new RegExp(`${P_WS.source}<\\/?td${P_TSX.source}${P_WS.source}(?:<\\/?td${P_TSX.source})?${P_WS.source}(?<ej1>${P_WS.source}(?:${CH_EJ.source}|${P_BL.source}))${P_WS.source}<\\/?td${P_TSX.source}${P_WS.source}(?:<\\/?td${P_TSX.source})?${P_WS.source}`, `gui`);
+var CL_TSR = new RegExp(`${P_TSO.source}(?:${P_TSR.source})${P_TSC.source}${P_NTG.source}\\s*\\/?>`, `gi`);
+var CL_TDE = new RegExp(`\\s*<\\/?td${P_TSX.source}\\s*(?:<\\/?td${P_TSX.source})?\\s*(?<ej1>\\s*(?:${CH_EJ.source}|${P_BL.source}))\\s*<\\/?td${P_TSX.source}\\s*(?:<\\/?td${P_TSX.source})?\\s*`, `gui`);
 var CL_TDT = new RegExp (`<\\/?td${P_TSX.source}`, `gui`);
 var CL_UHM = new RegExp(`<(?!\\/?(?:\\b(b|strong|i|em|ul|ol|li|h[1-9]|hr|p|div|span|a|td)\\b))${P_TSX.source}`, `gi`);
 var D_LB = new RegExp(`(?:\\r|${CL_UDL.source})`, `gu`);
 var D_LTR = new RegExp(`&(${P_ALR.source}${P_LRN.source}+);?`, `g`);
 var D_MD = new RegExp(`${P_DCD.source}?96`, `g`);
-var F_BK = new RegExp(`${P_WS.source}(${P_TSO.source}(?:${P_TSR.source}|${P_TSP.source})${P_TSC.source}${P_TSX.source})${P_WS.source}`, `gi`);
-var F_BL = new RegExp(`^${P_WS.source}(${P_BL.source})${P_WS.source}${P_ALB.source}+${P_WS.source}(${P_ALR.source})`, `gum`);
+var F_BK = new RegExp(`\\s*(${P_TSO.source}(?:${P_TSR.source}|${P_TSP.source})${P_TSC.source}${P_TSX.source})\\s*`, `gi`);
+var F_BL = new RegExp(`^\\s*(${P_BL.source})\\s*${P_ALB.source}+\\s*(${P_ALR.source})`, `gum`);
 var F_CMS = new RegExp(`(${P_ALR.source}),(${P_ALR.source})`, `g`);
-var F_IEJ = new RegExp(`${P_ALB.source}*<img${P_WS.source}(?:data|class)[\\-=]emoji="(.)"${P_TSX.source}${P_ALB.source}`, `gi`);
-var F_NU = new RegExp(`([0-9]{1,2}\\.)${P_WS.source}${P_ALB.source}+${P_WS.source}(${P_ALR.source})`, `g`);
+var F_IEJ = new RegExp(`${P_ALB.source}*<img\\s*(?:data|class)[\\-=]emoji="(.)"${P_TSX.source}${P_ALB.source}`, `gi`);
+var F_NU = new RegExp(`([0-9]{1,2}\\.)\\s*${P_ALB.source}+\\s*(${P_ALR.source})`, `g`);
 var F_PNC = new RegExp(`(${P_ALR.source}+)\\s+([\\.!\\?,])`, `g`);
 var F_SBP = new RegExp(`<\\b(sub|sup)\\b${P_TSX.source}(${P_NTG.source})${P_TCC.source}`, `gi`);
 var F_SLB = new RegExp(`(?<!${P_SPC.source}|${P_BL.source}) *${P_ALB.source} *(?![A-Z]|${P_BL.source}|\\d+?\\s[A-Z])`, `g`);
-var F_TSP = new RegExp(`(<\\/?${P_NTG.source})${P_WS.source}(${P_ALB.source}+${P_WS.source}>)`, `gi`);
-var M_ATT= new RegExp(`(${P_WDD.source})${P_SEQ.source}(?:(${P_QTS.source})(${P_ACN.source})\\2|([^\\s>]+))(?=\\s+${P_WDD.source}${P_WS.source}=|${P_WS.source}\\/?>|$)`, `gi`);
+var F_TSP = new RegExp(`(<\\/?${P_NTG.source})\\s*(${P_ALB.source}+\\s*>)`, `gi`);
+var M_ATT= new RegExp(`(${P_WDD.source})${P_SEQ.source}(?:(${P_QTS.source})(${P_ACN.source})\\2|([^\\s>]+))(?=\\s+${P_WDD.source}\\s*=|\\s*\\/?>|$)`, `gi`);
 var M_HP = new RegExp(`${P_SNC.source}[\\.\\!\\?]`);
-var M_IGA = new RegExp(`<img${P_NTG.source}alt${P_SEQ.source}"([\\w\\p{P} ]+?)"${P_WS.source}${P_NTG.source}>`, `gui`);
+var M_IGA = new RegExp(`<img${P_NTG.source}alt${P_SEQ.source}"([\\w\\p{P} ]+?)"\\s*${P_NTG.source}>`, `gui`);
 var M_LBL = new RegExp(`<ul${P_TSX.source}(${P_ACR.source}?)<\\/ul>`, `gi`);
 var M_LNU = new RegExp(`<ol${P_TSX.source}(${P_ACR.source}?)<\\/ol>`, `gi`);
-var M_SYA = new RegExp(`(${P_WDD.source}):${P_WS.source}([^;]+);?${P_WS.source}`, `gi`);
-var S_PRA = new RegExp(`${P_ALB.source}+${P_WS.source}${P_ALB.source}+|${P_ALB.source}+(?=\\S)`, `g`);
+var M_SYA = new RegExp(`(${P_WDD.source}):\\s*([^;]+);?\\s*`, `gi`);
+var S_PRA = new RegExp(`${P_ALB.source}+\\s*${P_ALB.source}+|${P_ALB.source}+(?=\\S)`, `g`);
 
 // FONTS //
 
@@ -223,10 +224,10 @@ var fCZ = `🚫 ${stbry}<em>Message too large to scan. Final score based only on
 var fSz = `${stbry}This email is too large to process without timing out. Try another one.${cFt}`;
 var fWc = `🚫 ${stbry}<em>Message too short for accurate scan. ${eCO}</em>${cFt}`;
 var lAT = `🛑 SAPLING ERROR: TIMEOUT: SKIPPING SAPLING 🛑\n`;
-var lBH = `NOT BOLD HEADING:`;
-var lBN = `NOT BOLD NAME:`;
-var lBS = `NOT BOLD SENTENCE:`;
-var lBT = `NOT BOLD TEXT:`;
+var lBH = `🚫 NOT BOLD HEADING:`;
+var lBN = `🚫 NOT BOLD NAME:`;
+var lBS = `🚫 NOT BOLD SENTENCE:`;
+var lBT = `🚫 NOT BOLD TEXT:`;
 var lHS = `🛑 🚨 SCAM! 🚨 (SNEAKY HIDDEN TEXT) 🚨 🛑`;
 var lNH = `🛑 NO HTML: USING PLAIN TEXT`;
 var lSm = `🛑 🚨 SCAM! 🚨 (DISSIMILAR) 🚨 🛑`;
@@ -588,16 +589,14 @@ function mSI(l1, l2) {
 function cHF(src, stl) {
   let txt = fxS(src.trim());
   const lns = sHF(txt).filter(ln => !M_OTG.test(ln[0])).filter(ln => !M_OPT.test(ln[0])),
-  lsL = lns.length, hEd = Math.min((lsL * 0.2), lsL),
-  fSt = Math.max(hEd, lsL - (lsL * 0.8));
+  lsL = lns.length, hEd = Math.min((lsL * 0.2), lsL), fSt = Math.max(hEd, lsL - (lsL * 0.8));
+  console.log(`***AFTER SPLIT HEADER/FOOTER:***\n${lns}`);
   const hFr = jHF(lns.slice(fSt));
   let hdr = lns.slice(0, hEd), ftr = lns.slice(fSt);
   hdr = hdr.map(ln => [cTg(ln[0]).replace(F_PRD, "."), ln[1]]);
   ftr = ftr.map(ln => [cTg(ln[0]).replace(F_PRD, "."), ln[1]]);
   const wdC = cWd(jHF(hdr) + `\n` + jHF(ftr));
-  if (dev) {
-    console.log(`📐 PRECLEAN WORD COUNT: ${wdC}\n📐 LINES: ${lsL}`);
-  }
+  if (dev) { console.log(`📐 PRECLEAN WORD COUNT: ${wdC}\n📐 LINES: ${lsL}`); };
   if (wdC < 30) { return { txt, ftr: txt, hFr: txt }; };
   const hps = [CL_HR, CL_HFF];
   hps.forEach(hp => {
@@ -802,9 +801,9 @@ function mBC(src, sbj, sdr) {
   return { bg, bgC };
 }
 
-function mBd(wds) {
+function mBd(wds, lbl) {
   let v = "", r = "", bHg = true, bNm = true, bSc = true;
-  const wdC = wds.length;
+  const wdC = wds.length, nm = lbl === `name`, clW = `("${(String(wds)).replace(/,/g, " ")}")`;
   const slcs = [
     { ch: wdC < 2,         r: `IS < 2 WORDS` },
     { ch: M_OTG.test(wds), r: `IS ONLY TAG(S)` },
@@ -814,7 +813,7 @@ function mBd(wds) {
   ];
   const sMc = slcs.find(slc => slc.ch);
   if (sMc) {
-    if (dBd) { console.log(`🚫 ${lBT} TEXT ${sMc.r} ("${wds}")`) };
+    if (dBd && !nm) { console.log(`${lBT} TEXT ${sMc.r} ${clW}`) };
     return { bHg: false, bNm: false, bSc: false };
   }
   for (let i = 0; i < wds.length; i++) {
@@ -833,30 +832,43 @@ function mBd(wds) {
     const wMch = wlcs.find(wlc => wlc.ch);
     if (wMch) {
       const fst = wMch.fst ? `1ST ` : ``;
-      if (dBd) { console.log(`🚫 ${v} ${fst}WORD${wMch.r} ("${wd}")`); };
+      if (dBd && !nm) { console.log(`🚫 ${v} ${fst}WORD${wMch.r} ("${wd}")`); };
     }
   }
   if (wdC < 3) { bSc = false; v = lBS; r = `IS < 3 WORDS`; };
   if (wdC > 4) { bNm = false; v = lBN; r = `IS > 4 WORDS`; };
   if (wdC > 8) { bHg = false; v = lBH; r = `IS > 8 WORDS`; };
-  if (dBd) { console.log(`🚫 ${v} TEXT ${r} ("${wds}")`); };
-  if (dbg) { console.log(`🆗 COMPLETED: mBd 🆗`); };
+  if (!nm) {
+    if (dBd) { console.log(`${v} TEXT ${r} ${clW}`); };
+    if (dbg) { console.log(`🆗 COMPLETED: mBd 🆗`); };
+  }
   return { bHg, bNm, bSc };
 }
 
 function mBN(ftr) {
-  lIx(S_NU); let cBN = false, bNT = "", mch;
-  while ((mch = CH_BNU.exec(ftr)) !== null) {
-    let mTx = cTg(String(mch[2]));
-    if (!mTx) { continue; };
-    if (!P_PCT.test(mTx)) {
-      const wds = mTx.split(S_NU).filter(w => w), wrdLt = wds.length;
-      if (wrdLt > 1 && wrdLt < 5) {
-        if (mBd(wds).bNm) {
-          cBN = true; bNT = mTx;
-          if (dev) { console.log(`✅ BOLD NAME MATCH: ${bNT}`); };
-        }
-      }
+  lIx(S_NU); lIx(CH_BNU); let cBN = false, bNT = "";
+  const mch = CH_BNU.exec(ftr);
+  if (!mch) {
+    if (dBd) { console.log(`${lBN} NO SIGN-OFF`); };
+    return { cBN, bNT };
+  }
+  let mTx = cTg(String(mch[2] || ""));
+  if (nNl(mTx)) {
+    if (dBd) { console.log(`${lBN} NO MATCHED TEXT`); };
+    return { cBN, bNT };
+  } else {
+    const wds = mTx.split(S_NU).filter(w => w), wc = wds.length;
+    const rls = [
+      { ch: wc <= 1, r: `WORD COUNT <= 1` },
+      { ch: wc >= 5, r: `WORD COUNT >= 5` },
+      { ch: P_PCT.test(mTx), r: `CONTAINS SENTENCE PUNCTUATION` },
+    ];
+    const rm = rls.find(rl => rl.ch);
+    if (rm) {
+      if (dBd) { console.log(`${lBN} ${rm.r} ("${mTx}")`); };
+    } else if (mBd(wds, `name`).bNm) {
+      cBN = true; bNT = mTx;
+      if (dev) { console.log(`✅ BOLD NAME MATCH: ${mTx}`); };
     }
   }
   if (dbg) { console.log(`🆗 COMPLETED: mBN 🆗`); };
@@ -864,40 +876,37 @@ function mBN(ftr) {
 }
 
 function cBd(src, cBN, bNT) {
-  lIx(CH_BD);
-  let mch, lb = "", bd = { bHC: 0, bSC: 0, eHC: 0, nHC: 0, hLs: 0 };
+  lIx(CH_BD); let mch, bd = { bHC: 0, bSC: 0, eHC: 0, nHC: 0, hLs: 0 };
   const txt = src.replace(CL_LK, "").trim();
   while ((mch = CH_BD.exec(txt)) !== null) {
-    const bdM = `("${mch[0]}")`;
-    let lg = "";
+    let mTx = String(mch[0]), lg = ""; const bdM = `("${mTx}")`;
     if (mch.length === 0) { continue; };
-    if (M_FNR.test(mch[0])) {
-      if (dBd) { console.log(`🚫 ${lBT} INLINE NORMAL FONT ("${bdM}")`) };
+    if (M_FNR.test(mTx)) {
+      if (dBd) { console.log(`${lBT} INLINE NORMAL FONT ${bdM}`) };
       continue;
     }
-    const mEj = mch.groups.emj, mNo = mch.groups.num, cn = mch.groups.cnt,
-    clMc = eRx(mch[0]), tOy = M_OTG.test(cn), { bHg, bSc } = mBd(cn.split(S_WS));
+    const mEj = mch.groups.emj, mNo = mch.groups.num, cn = mch.groups.cnt, clM = eRx(mTx),
+    tOy = M_OTG.test(cn), { bHg, bSc } = mBd(cn.split(S_WS), `count`);
     if (bHg) {
-      let isH = true;
+      if (!((new RegExp(`${P_OLO.source}\\s*(${clM})\\s*${P_OLC.source}`)).test(txt))) {
+        if (dBd) { `${lBH} NOT OWN LINE ${bdM}` };
+        continue;
+      }
+      if ((new RegExp(`${clM}`)).test((txt.split('\n')).filter(l => (!M_OTG.test(l) && !M_WSO.test(l))).slice(-5).join('\n'))) {
+        if (dBd) { `${lBH} LAST 5 LINES ${bdM}` };
+        continue;
+      }
       const rls = [
-        {
-          ch: !((new RegExp(`${P_OLO.source}${P_WS.source}(${clMc})${P_WS.source}${P_OLC.source}`)).test(txt)),
-          r: `NOT OWN LINE`
-        },
-        {
-          ch: ((new RegExp(`${clMc}`)).test((txt.split('\n')).filter(l => (!M_OTG.test(l) && !M_WSO.test(l))).slice(-5).join('\n'))),
-          r: `LAST 5 LINES`
-        },
         { ch: tOy, r: `TAGS ONLY` },
         { ch: M_HP.test(cn), r: `SENTENCE PUNCTUATION` },
         { ch: (CH_SF.test(cn) || CH_SF2.test(cn)), r: `SIGN-OFF` },
         { ch: (cBN && (new RegExp(bNT)).test(cn)), r: `SIGNATURE` },
       ];
-      if (rls.find(rl => rl.ch)) {
-        isH = false; lb = lBH;
-        if (dBd) { console.log(`🚫 ${lb} ${rl.r} ("${bdM}")`); };
-      }
-      if (isH) {
+      const rm = rls.find(rl => rl.ch);
+      if (rm) {
+        if (dBd) { console.log(`${lBH} ${rm.r} ${bdM}`); };
+        continue;
+      } else {
         if (mEj) {
           bd.eHC++; lg = `🙂 EMOJI HEADING MATCH: "${mEj}"`;
         } else if (mNo) {
@@ -907,9 +916,7 @@ function cBd(src, cBN, bNT) {
           bd.bHC++; lg = `🔝 BOLD HEADING MATCH: "${cn}"`;
         }
       }
-    } else if (bSc && !tOy) {
-      bd.bSC++; lg = `🖊️ BOLD SENTENCE MATCH: "${cn}"`;
-    }
+    } else if (bSc && !tOy) { bd.bSC++; lg = `🖊️ BOLD SENTENCE MATCH: "${cn}"`; };
     if (dev && lg !== "") { console.log(lg); };
   }
   if (dbg) { console.log(`🆗 COMPLETED: cBd 🆗`); };
@@ -929,7 +936,7 @@ function cBl(txt) {
     const fstBl = String(eRx(blTx[1]));
     for (i = 0; i < pghs.length; i++) {
       pgh = pghs[i].trim(); if (!pgh) { continue; };
-      if ((new RegExp(`^${fstBl}${P_WS.source}${P_LRN.source}`)).test(pgh)) {
+      if ((new RegExp(`^${fstBl}\\s*${P_LRN.source}`)).test(pgh)) {
         ctv++; gap = 0;
       } else if (ctv > 0) {
         gap++;
@@ -1157,7 +1164,7 @@ function gCS(dta) {
   let { bNm, evj, wst, mst, snf } = sns, phM = null, qMg = null;
   const phS = sns.phs || [], qaS = sns.qa || [], fCs = { ...dta.cts };
   if ((bgC) && !CH_SF2) { bNm = null; };
-  if (evj && fCs.emj > 1) { fCs.emj--; };
+  if (evj && fCs.emj >= 1) { fCs.emj--; };
   if (M_AZO.test(sbj) || M_AZN.test(sdr)) { fCs.eps = 0 };
   const cln = (t) => t ? clp(t) : null;
   const sfX = cln(snf), evX = cln(evj), sPh = gPh(phS), sQa = gPh(qaS);
