@@ -121,7 +121,7 @@ var P_OLC = /(?:[\n\r]|$)/;
 var P_OLO = /(?:[\n\r]|^)/;
 var P_PCT = /[,:\?!@\(\);<>\/\\=\|]/;
 var P_QTS = /["']/;
-var P_SF1 = /(?:(?:(?:(?:(?:Kind|Warm)(?:est|)|Best|Thank(?:s|\s*[Yy]ou)\s*(?:and|&)\s*([Kk]ind)?)\s*[Rr]egards?)|Best|Warmly|Regards))/;
+var P_SF1 = /(?:(?:(?:(?:(?:Kind|Warm)(?:est|)|Best|Thank(?:s|\s*[Yy]ou)\s*(?:and|&)\s*([Kk]ind)?)\s*[Rr]egards?)|Best|(?:Kind|Warm)(?:ly|)|Regards|With [Aa]dmiration))/;
 var P_SF2 = /Sincerely(?: [Yy]ours|)|Thank(?:s| [Yy]ou)(?: for [\w ]+?)|Yours(?: [Tt]ruly|Sincerely)?|Signed/;
 var P_SPC = /[:!\.\?,]/;
 var P_SNC = /[\w\p{P}]+?/u;
@@ -259,7 +259,8 @@ function ckL(lb, dta) {
   const txt = (typeof dta === 'object') ? JSON.stringify(dta, null, 2) : String(dta);
   const sz = 4000; let c = 0;
   for (let i = 0; i < txt.length; i += sz) {
-    c++; console.log(`${lb} CHUNK ${c} of ${Math.ceil(txt.length / sz)}:\n${txt.substring(i, i + sz)}`);
+    c++;
+    console.log(`${lb} CHUNK ${c} of ${Math.ceil(txt.length / sz)}:\n${txt.substring(i, i + sz)}`);
   }
 }
 
@@ -270,7 +271,11 @@ function rRx(out, chs, clL) {
       if (dbg) { console.log(`🆗 COMPLETED: ${l} 🆗`) };
       if (dCl) { ckL(`🐞🐞 AFTER ${clL} ${l} 🐞🐞`, clp(out)); };
     });
-  } else { chs.forEach(([p, r]) => { out = (r === "f") ? p(out) : out.replace(p, r); }); };
+  } else {
+    chs.forEach(([p, r]) => {
+      out = (r === "f") ? p(out) : out.replace(p, r);
+    });
+  }
   if (dbg) { console.log(`🆗 COMPLETED: ${clL} rRx 🆗`) };
   return out;
 }
@@ -284,9 +289,10 @@ function cTC(num) {
 
 function dMg(src) {
   const ENT = {
-    amp: "&", apos: "'", bull: "•", copy: "©", gt: ">", hellip: "…", laquo: "«", lsquo: "'", ldquo: '"', lt: "<",
-    mdash: "—", middot: "·", nbsp: " ", ndash: "-", newline: "\n", ntilde: "ñ", ordm: "°", quot: '"', raquo: "»",
-    rarr: "→", reg: "®", rsaquo: "›", rsquo: "'", rdquo: '"', shy: "", times: "×", trade: "™", zwnj: ""
+    amp: "&", apos: "'", bull: "•", copy: "©", gt: ">", hellip: "…", laquo: "«", lsquo: "'",
+    ldquo: '"', lt: "<", mdash: "—", middot: "·", nbsp: " ", ndash: "-", newline: "\n",
+    ntilde: "ñ", ordm: "°", quot: '"', raquo: "»", rarr: "→", reg: "®", rsaquo: "›",
+    rsquo: "'", rdquo: '"', shy: "", times: "×", trade: "™", zwnj: ""
   },
   RGX1 = [ [D_QPB, ""], [D_QPC, "%$1"] ],
   RGX2 = [
@@ -318,7 +324,9 @@ function fxT(src) {
 }
 
 function cHS(htm) {
-  const tgs = [ { o: `<head`, c: `</head>`, l: 7 }, { o: `<style`, c: `</style>`, l: 8 } ];
+  const tgs = [
+    { o: `<head`, c: `</head>`, l: 7 }, { o: `<style`, c: `</style>`, l: 8 }
+  ];
   tgs.forEach(tg => {
     const lcH = lCs(htm); let res = "", i = 0;
     while (i < htm.length) {
@@ -362,12 +370,16 @@ function cAt(htm) {
             { py: M_SYW.test(pn), vl: M_SYB.test(pv) || (nm >= 600 && nm <= 900) }
           ];
           const m = ps.find(p => p.py); if (m) {
-            if (m.py && m.vl) { if (m.tg) { nLs = true; }; return pp; } else { return ""; };
+            if (m.py && m.vl) {
+              if (m.tg) { nLs = true; }; return pp;
+            } else { return ""; };
           } else { return ""; }
         });
         let tm = cs.replace(S_WS, "").trim();
-        ct = cs && (tm !== null && tm !== undefined && tm !== "") ? ct.replace(ma, `style="${cs}"`) : ct.replace(ma, "");
-      } else if (CL_ATT.test(mn)) { ct = ct.replace(ma, ""); };
+        if (cs && (tm !== null && tm !== undefined && tm !== "")) {
+          ct = ct.replace(ma, `style="${cs}"`);
+        } else { ct = ct.replace(ma, "") };
+      } else if (CL_ATT.test(mn)) { ct = ct.replace(ma, "") };
     }
     if (ct !== ts) {
       ct = ct.replace(CL_TGS, "$1>").replace(CL_TGY, `style="`).trim();
@@ -381,13 +393,16 @@ function cAt(htm) {
 function cBT(out) {
   const ts = ["div", "span", "p", "td"];
   ts.forEach(tg => {
-    const bt = new RegExp(`<${tg}>`, "i"), ol = tg.length + 2, cl = tg.length + 3;
+    const bt = new RegExp(`<${tg}>`, "i"),
+    ol = tg.length + 2, cl = tg.length + 3;
     let st = out.search(bt);
     while (st !== -1) {
       let dt = 1, i = st + ol;
       while (i < out.length) {
         const rt = out.slice(i);
-        if ((new RegExp(`^<${tg}[\\s>]`, "i")).test(rt)) { dt++; i += ol; continue; };
+        if ((new RegExp(`^<${tg}[\\s>]`, "i")).test(rt)) {
+          dt++; i += ol; continue;
+        }
         if ((new RegExp(`^<\\/${tg}>`, "i")).test(rt)) {
           dt--;
           if (dt === 0) {
@@ -456,17 +471,22 @@ function cPL(rwP, wdC) {
 
 function xHP(raw) {
   lIx(P_ATG);
-  const out = String(raw || ""), fh = M_HTM.exec(out), pA = M_PAF.exec(out);
+  const out = String(raw || ""), fh = M_HTM.exec(out),
+  pA = M_PAF.exec(out);
   const xH = nNl(fh) ? raw : fh[1].trim();
   let xP = nNl(pA) ? null : pA[1].trim();
-  if (nNl(xP) || (cWd(xP) < (cWd(xH) / 4)) || P_ATG.test(xP)) { xP = null; };
+  if (nNl(xP) || (cWd(xP) < (cWd(xH) / 4)) || P_ATG.test(xP)) {
+    xP = null;
+  }
   if (dbg) { console.log(`📝 EXTRACTED PLAIN TEXT:\n${xP}`); };
   return { xH, xP };
 }
 
 function cHC(htm, clL) {
   if (nNl(htm)) {
-    if (dbg) { console.log(`🛑 NO HTML: SKIPPING HTML CLEANING 🛑`); };
+    if (dbg) {
+      console.log(`🛑 NO HTML: SKIPPING HTML CLEANING 🛑`);
+    }
     return { out: htm, cMs: false, cWs: false, thH: false };
   }  
   let out = String(htm || "");
@@ -489,7 +509,9 @@ function cHC(htm, clL) {
 
 function cPC(ptx, clL) {
   if (nNl(ptx)) {
-    if (dbg) { console.log(`🛑 NO PLAIN TEXT: SKIPPING PLAIN CLEANING 🛑`); };
+    if (dbg) {
+      console.log(`🛑 NO PLAIN TEXT: SKIPPING PLAIN CLEANING 🛑`);
+    }
     return { out: ptx, thP: false };
   }
   let out = String(ptx || "");
@@ -525,7 +547,14 @@ function sHF(txt) {
 
 function cLT(txt) { return CL_LLN.test(txt); };
 function fLn(ln, rx) { return ln.filter(w => rx.test(w)) };
-function jHF(cks) { let jd = ""; for (let i = 0; i < cks.length; i++) { jd += cks[i][0] + cks[i][1]; }; return jd; };
+
+function jHF(cks) {
+  let jd = "";
+  for (let i = 0; i < cks.length; i++) {
+    jd += cks[i][0] + cks[i][1];
+  }
+  return jd;
+}
 
 function fxS(txt) {
   const ps = [". ", "! ", "? "];
@@ -544,9 +573,14 @@ function mSI(l1, l2) {
     l1 = [...new Set(l1)];
     if (l1.length > 0) {
       if (l1.length > 1) { lMc = true; };
-      if (l2.length > 0) { l2 = [...new Set(l2)]; if (l2.length > 0) { lMc = true; }; };
+      if (l2.length > 0) {
+        l2 = [...new Set(l2)];
+        if (l2.length > 0) { lMc = true; };
+      }
     }
-    if (dev && lMc) { console.log(`🌐 SOCIAL MATCH(ES) 🌐:${tb}${l1}${tb}${l2}`); };
+    if (dev && lMc) {
+      console.log(`🌐 SOCIAL MATCH(ES) 🌐:${tb}${l1}${tb}${l2}`);
+    }
   }
   return lMc;
 }
@@ -554,18 +588,23 @@ function mSI(l1, l2) {
 function cHF(src, stl) {
   let txt = fxS(src.trim());
   const lns = sHF(txt).filter(ln => !M_OTG.test(ln[0])).filter(ln => !M_OPT.test(ln[0])),
-  lsL = lns.length, hEd = Math.min((lsL * 0.2), lsL), fSt = Math.max(hEd, lsL - (lsL * 0.8));
+  lsL = lns.length, hEd = Math.min((lsL * 0.2), lsL),
+  fSt = Math.max(hEd, lsL - (lsL * 0.8));
   const hFr = jHF(lns.slice(fSt));
   let hdr = lns.slice(0, hEd), ftr = lns.slice(fSt);
   hdr = hdr.map(ln => [cTg(ln[0]).replace(F_PRD, "."), ln[1]]);
   ftr = ftr.map(ln => [cTg(ln[0]).replace(F_PRD, "."), ln[1]]);
   const wdC = cWd(jHF(hdr) + `\n` + jHF(ftr));
-  if (dev) { console.log(`📐 PRECLEAN WORD COUNT: ${wdC}\n📐 LINES: ${lsL}`); };
+  if (dev) {
+    console.log(`📐 PRECLEAN WORD COUNT: ${wdC}\n📐 LINES: ${lsL}`);
+  }
   if (wdC < 30) { return { txt, ftr: txt, hFr: txt }; };
   const hps = [CL_HR, CL_HFF];
   hps.forEach(hp => {
     if (hdr.some(ln => hp.test(ln[0]))) {
-      if (dev) { console.log(`🗣️ HEADER MATCH(ES) 🗣️:\n${hdr.filter(ln => hp.test(ln[0]))}`); };
+      if (dev) {
+        console.log(`🗣️ HEADER MATCH(ES) 🗣️:\n${hdr.filter(ln => hp.test(ln[0]))}`);
+      }
       hdr = hdr.filter(ln => !hp.test(ln[0]));
     }
   });
@@ -586,34 +625,47 @@ function cHF(src, stl) {
           console.log(`🏠 ADDRESS MATCH(ES): ${tb}${mA1}` + (mA2 ? `${tb}${mA2}` : '') + (mA3 ? `${tb}${mA3}` : ''));
         }
         if (mA2) {
-          if (mA3) { lLs.splice(i,3); } else if (!mA3 || aL2 === lLn) { lLs.splice(i,2); };
+          if (mA3) {
+            lLs.splice(i,3);
+          } else if (!mA3 || aL2 === lLn) {
+            lLs.splice(i,2);
+          }
         } else { lLs.splice(i); };
-      } else if ((!mA2 && !mA3) || aL1 === lLn) { lLs.splice(i); };
+      } else if ((!mA2 && !mA3) || aL1 === lLn) {
+        lLs.splice(i);
+      }
     }
   }
   let sMc = false, iMc = false;
   for (let j = 0; j < lLs.length; j++) {
-    const l1 = (String(lLs[j]).trim()).split(S_WS);
-    const l2 = (String(lLs[j + 1]).trim()).split(S_WS);
+    const l1 = (String(lLs[j]).trim()).split(S_WS),
+    l2 = (String(lLs[j + 1]).trim()).split(S_WS);
     if (l1.length === 0 && l2.length === 0) { break; };
-    const sM1 = fLn(l1, CL_SC), sM2 = fLn(l2, CL_SC), iM1 = fLn(l1, CL_SC2), iM2 = fLn(l2, CL_SC2);
+    const sM1 = fLn(l1, CL_SC), sM2 = fLn(l2, CL_SC),
+    iM1 = fLn(l1, CL_SC2), iM2 = fLn(l2, CL_SC2);
     sMc = mSI(sM1, sM2); iMc = mSI(iM1, iM2);
     if (sMc || iMc) { break; };
   }
   const lps = [CL_SC, CL_SC2];
-  if (sMc || iMc) { lps.forEach(lp => { lLs = lLs.filter(ln => !lp.test(ln[0])); }); };
+  if (sMc || iMc) {
+    lps.forEach(lp => { lLs = lLs.filter(ln => !lp.test(ln[0])); });
+  }
   if (lLs.some(ln => cLT(ln[0]))) {
     if (dev) {
       console.log(`🔚 LAST LINES MATCH(ES) 🔚:\n${lLs.filter(ln => cLT(ln[0]))}`);
     }
     lLs = lLs.filter(ln => !cLT(ln[0]));
   }
-  if (!stl) { lLs = lLs.map(ln => [ln[0].replace(CL_OPT, ""), ln[1]]); };
+  if (!stl) {
+    lLs = lLs.map(ln => [ln[0].replace(CL_OPT, ""), ln[1]]);
+  }
   ftr = (nNl(lLs)) ? fLs : fLs.concat(lLs);
   const sF = jHF(ftr), fps = [CL_FR, CL_FRB, CL_FRC, CL_HFF];
   fps.forEach(fp => {
     if (ftr.some(ln => fp.test(ln[0]))) {
-      if (dev) { console.log(`👣 FOOTER MATCHES 👣:\n${ftr.filter(ln => fp.test(ln[0]))}`); };
+      if (dev) {
+        console.log(`👣 FOOTER MATCHES 👣:\n${ftr.filter(ln => fp.test(ln[0]))}`);
+      }
       ftr = ftr.filter(ln => !fp.test(ln[0]));
     }
   });
@@ -644,14 +696,19 @@ function pCl(src, clL) {
 
 function cnF(clH, clP, isT) {
   let h = true, p = true, r = "", v = "", fm = isT ? fNT : fNC;
-  const hWc = cWd(clH), pWc = cWd(clP), lg = isT ? rNT : rNC, pTp = M_NOP.exec(clP);
-  const hLW = hWc < 5, pLW = pWc < 5, lbD = rd2(pWc / clP.split("\n").length), nLb = ((lbD > 40) || !P_ALB.test(clP));
+  const hWc = cWd(clH), pWc = cWd(clP), lg = isT ? rNT : rNC,
+  pTp = M_NOP.exec(clP), hLW = hWc < 5, pLW = pWc < 5,
+  lbD = rd2(pWc / clP.split("\n").length),
+  nLb = ((lbD > 40) || !P_ALB.test(clP));
   if (dev) {
     console.log(`🚰 CONTENT FILTER: 🚰${tb}H WORD COUNT: ${hWc}${tb}P WORD COUNT: ${pWc}${tb}LINE BREAK DENSITY: ${lbD}`);
   }
   if (nNl(clH) || hLW) { h = false; v = `HTML`; };
   if (nNl(clP) || pLW || pTp || nLb) { p = false; v = `PLAIN TEXT`; };
-  if (!h && !p) { if (dev) { console.log(`🛑 ${lg} 🛑`); }; return { h: false, p: false, fm }; };
+  if (!h && !p) { if (dev) {
+    console.log(`🛑 ${lg} 🛑`); };
+    return { h: false, p: false, fm };
+  }
   if (!h || !p) {
     const rns = [
       { c: hLW || pLW, r: rWc },
@@ -659,7 +716,9 @@ function cnF(clH, clP, isT) {
       { c: pTp, r: `PLACEHOLDER/TEMPLATE (${pTp})` },
     ];
     rns.forEach(rn => { if (rn?.c) { r = rn.r; }; });
-    if (dev) { console.log(`🛑 ${v} ${lg} (${r}): SKIPPING SCAM CHECK 🛑`); };
+    if (dev) {
+      console.log(`🛑 ${v} ${lg} (${r}): SKIPPING SCAM CHECK 🛑`);
+    }
   }
   return { h, p, fm };
 }
@@ -668,9 +727,17 @@ function szF(src, td, lb) {
   const txt = String(src || "");
   let sz = txt.length, unt = `B`;
   const kb = 1024, mb = 1048576, bMg = (sz > td) ? true : false;
-  if (sz > kb) { if (sz > mb) { sz = sz / mb; unt = `MB` } else { sz = sz / kb; unt = `KB`; }; };
+  if (sz > kb) {
+    if (sz > mb) {
+      sz = sz / mb; unt = `MB`;
+    } else {
+      sz = sz / kb; unt = `KB`;
+    }
+  }
   const mSz = rd2(sz) + ` ` + unt;
-  if (dev) { console.log(bMg ? `🛑 ${lb} MSG. SIZE (${mSz}) 🛑` : `📐 ${lb} SIZE: ${mSz}`); };
+  if (dev) {
+    console.log(bMg ? `🛑 ${lb} MSG. SIZE (${mSz}) 🛑` : `📐 ${lb} SIZE: ${mSz}`);
+  }
   return bMg;
 }
 
@@ -692,13 +759,14 @@ function btF(raw) {
 function dSm(clH, clP) {
   let scm = false, hMC = 0, pMC = 0;
   clH = pCl(clH, "Detect Scam"); clP = stp(clP);
-  const gTk = (txt) => new Set(lCs(String(txt || "")).match(M_TKN) || []);
-  const hTk = gTk(clH), pTk = gTk(clP);
+  const gTk = (txt) => new Set(lCs(String(txt || "")).match(M_TKN) || []),
+  hTk = gTk(clH), pTk = gTk(clP);
   hTk.forEach(token => { if (pTk.has(token)) hMC++; });
   pTk.forEach(token => { if (hTk.has(token)) pMC++; });
-  const htS = hTk.size, ptS = pTk.size, hSi = htS ? (hMC / htS) : 0;
-  const pSi = ptS ? (pMC / ptS) : 0, smM = Math.min(hMC, pMC), smT = Math.min(htS, ptS);
-  const incl = Math.abs(smM - smT) < 3, min = hMC > pMC ? `HTML` : `PLAIN TEXT`;
+  const htS = hTk.size, ptS = pTk.size, hSi = htS ? (hMC / htS) : 0,
+  pSi = ptS ? (pMC / ptS) : 0, smM = Math.min(hMC, pMC),
+  smT = Math.min(htS, ptS), incl = Math.abs(smM - smT) < 3,
+  min = hMC > pMC ? `HTML` : `PLAIN TEXT`;
   if (hSi < 0.4 && pSi < 0.4 && !incl) { scm = true; };
   if (dev) {
     console.log(`🔎 INCLUDES: 🔎${tb}TOTAL TOKENS (${min}) = ${smT}${tb}MATCHED TOKENS = ${smM}${tb}INCLUDES? ${incl}`);
@@ -726,7 +794,8 @@ function ckT(txt, mgL) {
 function mBC(src, sbj, sdr) {
   let txt = String(src || ""), bg = false, bgC = false;
   const fPns = [CL_FR, CL_FRC, CL_HR, CL_LLN];
-  fPns.forEach(fPn => { lIx(fPn); if (fPn.test(txt)) { bgC = true; }; });
+  fPns.forEach(fPn => { lIx(fPn);
+  if (fPn.test(txt)) { bgC = true; }; });
   if (M_BSR.test(sdr) || CL_FRB.test(txt)) { bg = true; };
   if (M_CSJ.test(sbj) || bg)  { bgC = true; };
   if (dbg) { console.log(`🆗 COMPLETED: mBC 🆗`); };
@@ -751,7 +820,8 @@ function mBd(wds) {
   for (let i = 0; i < wds.length; i++) {
     const wd = wds[i].trim(), l1 = wd.charAt(0), lw1 = wds[0].charAt(0);
     if (!wd || wdC === 1 || M_OSP.test(wd) || M_OPT.test(wd)) { continue; };
-    const cps = wd === uCs(wd), l1l = l1 !== uCs(l1), nu = P_NU.test(wd), w1l = lw1 !== uCs(lw1);
+    const cps = wd === uCs(wd), l1l = l1 !== uCs(l1),
+    nu = P_NU.test(wd), w1l = lw1 !== uCs(lw1);
     if (cps || l1l || nu) { bNm = false; v = lBN; };
     if (w1l) { bHg = false; v = lBH; };
     const wlcs = [
@@ -798,19 +868,26 @@ function cBd(src, cBN, bNT) {
   let mch, lb = "", bd = { bHC: 0, bSC: 0, eHC: 0, nHC: 0, hLs: 0 };
   const txt = src.replace(CL_LK, "").trim();
   while ((mch = CH_BD.exec(txt)) !== null) {
-    const bdM = `("${mch[0]}")`; let lg = "";
+    const bdM = `("${mch[0]}")`;
+    let lg = "";
     if (mch.length === 0) { continue; };
     if (M_FNR.test(mch[0])) {
       if (dBd) { console.log(`🚫 ${lBT} INLINE NORMAL FONT ("${bdM}")`) };
       continue;
     }
-    const mEj = mch.groups.emj, mNo = mch.groups.num, cn = mch.groups.cnt, clMc = eRx(mch[0]),
-    tOy = M_OTG.test(cn), { bHg, bSc } = mBd(cn.split(S_WS));
+    const mEj = mch.groups.emj, mNo = mch.groups.num, cn = mch.groups.cnt,
+    clMc = eRx(mch[0]), tOy = M_OTG.test(cn), { bHg, bSc } = mBd(cn.split(S_WS));
     if (bHg) {
       let isH = true;
       const rls = [
-        { ch: !((new RegExp(`${P_OLO.source}${P_WS.source}(${clMc})${P_WS.source}${P_OLC.source}`)).test(txt)), r: `NOT OWN LINE` },
-        { ch: ((new RegExp(`${clMc}`)).test((txt.split('\n')).filter(l => (!M_OTG.test(l) && !M_WSO.test(l))).slice(-5).join('\n'))), r: `LAST 5 LINES` },
+        {
+          ch: !((new RegExp(`${P_OLO.source}${P_WS.source}(${clMc})${P_WS.source}${P_OLC.source}`)).test(txt)),
+          r: `NOT OWN LINE`
+        },
+        {
+          ch: ((new RegExp(`${clMc}`)).test((txt.split('\n')).filter(l => (!M_OTG.test(l) && !M_WSO.test(l))).slice(-5).join('\n'))),
+          r: `LAST 5 LINES`
+        },
         { ch: tOy, r: `TAGS ONLY` },
         { ch: M_HP.test(cn), r: `SENTENCE PUNCTUATION` },
         { ch: (CH_SF.test(cn) || CH_SF2.test(cn)), r: `SIGN-OFF` },
@@ -855,7 +932,11 @@ function cBl(txt) {
       if ((new RegExp(`^${fstBl}${P_WS.source}${P_LRN.source}`)).test(pgh)) {
         ctv++; gap = 0;
       } else if (ctv > 0) {
-        gap++; if (gap >= 1) { if (ctv >= 2) { xBl++; } ctv = 0; gap = 0; };
+        gap++;
+        if (gap >= 1) {
+          if (ctv >= 2) { xBl++; };
+          ctv = 0; gap = 0;
+        }
       }
     }
     if (ctv >= 2) { xBl++; };
@@ -863,11 +944,18 @@ function cBl(txt) {
   blC = tBl + xBl;
   if (blEj) {
     for (i = 0; i < pghs.length; i++) {
-      pgh = pghs[i].trim(); if (!pgh) { continue; };
+      pgh = pghs[i].trim();
+      if (!pgh) { continue; };
       if (CH_HTG.test(pgh)) { i++; };
       const ejSt = CH_BLN.test(pgh);
-      if (ejSt) { ctv++; gap = 0; } else if (ctv > 0) {
-        gap++; if (gap >= 1) { if (ctv >= 2) { eBlC++;  ejC += ctv; }; ctv = 0; gap = 0; };
+      if (ejSt) {
+        ctv++; gap = 0;
+      } else if (ctv > 0) {
+        gap++;
+        if (gap >= 1) {
+          if (ctv >= 2) { eBlC++; ejC += ctv; };
+          ctv = 0; gap = 0;
+        }
       }
     }
     if (ctv >= 2) { eBlC++; ejC += ctv; };
@@ -905,13 +993,21 @@ function cEt(txt, cBN, bNT) {
     bLs: 0, nLs: 0, hdg: 0, hrl: 0, itc: 0, eps: 0, mDh: 0,
     emj: 0, eBl: 0, bSc: 0, bHg: 0, eHg: 0, nHg: 0
   }
-  const pCt = { hdg: CH_HTG, hrl: CH_HRL, itc: CH_ITC, eps: CH_EPS, mDh: CH_EMD, emj: CH_EJ };
+  const pCt = {
+    hdg: CH_HTG, hrl: CH_HRL, itc: CH_ITC, eps: CH_EPS, mDh: CH_EMD, emj: CH_EJ
+  }
   for (const [ky, pat] of Object.entries(pCt)) {
     lIx(pat); const m = txt.match(pat); cts[ky] = m ? m.length : 0;
   }
-  const { bSC, bHC, eHC, nHC, hLs } = cBd(txt, cBN, bNT), { blC, eBlC, ejC } = cBl(txt);
-  Object.assign(cts, { nLs: cNu(txt), bSc: bSC, bHg: bHC, bLs: blC, eHg: eHC, nHg: nHC, eBl: eBlC });
-  if (cts.emj > 0) { if (ejC > 0) { cts.emj -= ejC }; if (eHC > 0) { cts.emj -= eHC }; };
+  const { bSC, bHC, eHC, nHC, hLs } = cBd(txt, cBN, bNT),
+  { blC, eBlC, ejC } = cBl(txt);
+  Object.assign(cts, {
+    nLs: cNu(txt), bSc: bSC, bHg: bHC, bLs: blC, eHg: eHC, nHg: nHC, eBl: eBlC
+  });
+  if (cts.emj > 0) {
+    if (ejC > 0) { cts.emj -= ejC };
+    if (eHC > 0) { cts.emj -= eHC };
+  }
   if (cts.nLs > 0 && hLs > 0) { cts.nLs -= hLs; };
   if (dbg) { console.log(`🆗 COMPLETED: cEt 🆗`); };
   return cts;
@@ -996,7 +1092,9 @@ function pMg(e) {
   const dta = gMg(e);
   let fm, mCn, clH, clP, stl, rwC = dta.rwCn;
   if (szF(rwC, 1024000, "RAW")) { return { ...dta, fm: fSz }; };
-  if (btF(rwC.substring(10000, 20000))) { return { ...dta, fm: fBt }; };
+  if (btF(rwC.substring(10000, 20000))) {
+    return { ...dta, fm: fBt };
+  }
   rwC = dMg(rwC); const cmpH = M_HTM.test(rwC);
   let { xH: rwH, xP: rwP } = xHP(rwC);
   rwH = cmpH ? rwH : rwC;
@@ -1048,7 +1146,10 @@ function pMg(e) {
 }
 
 function gPh(src) {
-  return src.map(s => { const t = String(s || ""); return CH_PHE.test(t) ? t : `${t}...`; }).filter(Boolean);
+  return src.map(s => {
+    const t = String(s || "");
+    return CH_PHE.test(t) ? t : `${t}...`;
+  }).filter(Boolean);
 }
 
 function gCS(dta) {
@@ -1094,10 +1195,15 @@ function gCS(dta) {
   ];
   const tgr = []; let cSr = 0, pts = 0;
   rules.forEach(r => {
-    if (r?.vl) { pts++; cSr += r.scr; tgr.push(` 🔸 ` + (r.lb ? (r.lb + ` ` + r.vl) : r.txt)); };
+    if (r?.vl) {
+      pts++; cSr += r.scr;
+      tgr.push(` 🔸 ` + (r.lb ? (r.lb + ` ` + r.vl) : r.txt));
+    }
   });
   cSr = Math.min(100, (Math.sqrt(cSr * (pts * 10))));
-  if (dev) { console.log(`📐 POINTS: ${pts}\n📐 SCANE SUBTOTAL: ${rd2(cSr)}`); };
+  if (dev) {
+    console.log(`📐 POINTS: ${pts}\n📐 SCANE SUBTOTAL: ${rd2(cSr)}`);
+  }
   if (bg) {
     const bDc = cSr * 0.20; cSr -= bDc;
     if (dev) { console.log(`➖ BLOG DISCOUNT: ${rd2(bDc)}`); };
@@ -1137,28 +1243,52 @@ function aDc(src) {
   }
   const txt = String(src || "");
   if (!txt) { return 0; };
-  const t0 = Date.now(), cks = ckT(txt, 400),
-  req = bAR(cks[0]), res = UrlFetchApp.fetch(req.url, req);
-  if ((Date.now() - t0) > 5000) { console.log(lAT); throw new Error(rTo); };
-  let rty, num, tol = 0, wtd = 0,
-  code = res.getResponseCode(), body = res.getContentText(),
-  rtE = 400 && M_XVL.test(body), mch = M_SCR.exec(body), jsn;
-  var eErr = `⛔ SAPLING ERROR ${code}: ${body}`;
-  try { jsn = JSON.parse(body); } catch (e) { console.error(eErr); throw new Error(eErr); };
-  const rsps = UrlFetchApp.fetchAll(cks.map(function(ck) { return bAR(ck); }));
-  if ((Date.now() - t0) > 5000) { console.log(lAT); throw new Error(rTo); };
+  const t0 = Date.now(), cks = ckT(txt, 400), req = bAR(cks[0]),
+  res = UrlFetchApp.fetch(req.url, req);
+  if ((Date.now() - t0) > 5000) {
+    if (dev) { console.log(lAT); };
+    throw new Error(rTo);
+  }
+  let rty, num, tol = 0, wtd = 0, code = res.getResponseCode(),
+  body = res.getContentText(), rtE = 400 && M_XVL.test(body),
+  mch = M_SCR.exec(body), jsn;
+  var cEr = `⛔ SAPLING ERROR ${code}: ${body}`;
+  try {
+    jsn = JSON.parse(body);
+  } catch (e) { console.error(cEr); throw new Error(cEr); };
+  const rsps = UrlFetchApp.fetchAll(cks.map(function(ck) {
+    return bAR(ck);
+  }));
+  if ((Date.now() - t0) > 5000) {
+    if (dev) { console.log(lAT); };
+    throw new Error(rTo);
+  }
   rsps.forEach(function(res, idx) {
-    if ((Date.now() - t0) > 5000) { console.log(lAT); throw new Error(rTo); };
-    if (cks.length === 1) { if (code === rtE) { rty = rtA(cks[0]); }; };
-    if (code === rtE) { rty = rtA(cks[idx]); code = rty.code; body = rty.body; };
+    if ((Date.now() - t0) > 5000) {
+      if (dev) { console.log(lAT); };
+      throw new Error(rTo);
+    }
+    if (cks.length === 1) {
+      if (code === rtE) { rty = rtA(cks[0]); };
+    }
+    if (code === rtE) {
+      rty = rtA(cks[idx]);
+      code = rty.code; body = rty.body;
+    }
     if (code < 200 || code >= 300) {
-      if (dev) { console.log(`🛑 ${eErr}: SKIPPING SAPLING 🛑`); };
+      if (dev) { console.log(`🛑 ${cEr}: SKIPPING SAPLING 🛑`); };
       throw new Error(eAE);
     }
     let raw = null;
-    if (mch) { raw = mch[1]; } else {
+    if (mch) {
+      raw = mch[1];
+    } else {
       try {
-        raw = typeof jsn.score === "number" ? jsn.score : (jsn.data && typeof jsn.data.score === "number" ? jsn.data.score : null);
+        if (typeof jsn.score === "number") {
+          raw = jsn.score;
+        } else if (jsn.data && typeof jsn.data.score === "number") {
+          raw = jsn.data.score;
+        } else { raw = null; };
       } catch(e) { raw = null; };
     }
     num = Number(raw);
@@ -1195,7 +1325,9 @@ function onGmailMessageOpen(e) {
     let out, aFS, spCn = dta.mCn;
     if (dta.wdC < 100) {
       aFS = fWc; const elmts = map(cFS);
-      if (dev) { console.log(`🛑 WORD COUNT (${dta.wdC} words): SKIPPING SAPLING 🛑`); };
+      if (dev) {
+        console.log(`🛑 WORD COUNT (${dta.wdC} words): SKIPPING SAPLING 🛑`);
+      }
       out = { pct: cFS, message: elmts, details: ch.smy || "" };
     } else {
       let avgScr; aFS = saE(spCn); cFS = Math.min(100, cFS);
@@ -1207,7 +1339,8 @@ function onGmailMessageOpen(e) {
         { ch: cSc && aSc && cFS === 0, scr: aFS / 2 },
         { ch: cSc && aSc && aFS === 0, scr: cFS / 2 },
       ];
-      const calc = chs.find(c => c.ch); avgScr = calc ? calc.scr : 0;
+      const calc = chs.find(c => c.ch);
+      avgScr = calc ? calc.scr : 0;
       out = { pct: rd2(avgScr), message: map(avgScr), details: ch.smy || "" };
     }
     if (dev) { console.log(out.details); };
