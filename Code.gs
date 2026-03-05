@@ -2,7 +2,7 @@
 
 // LOG DEBUG SWITCHES //
 
-const dev = true, dbg = false, dCl = false, dBd = false;
+const dev = false, dbg = false, dCl = false, dBd = false;
 
 // CACHED API KEY //
 
@@ -194,7 +194,7 @@ var F_IEJ = new RegExp(`${P_ALB.source}*<img\\s*(?:data|class)[\\-=]emoji="(.)"$
 var F_NU = new RegExp(`([0-9]{1,2}\\.)\\s*${P_ALB.source}+\\s*(${P_ALR.source})`, `g`);
 var F_PNC = new RegExp(`(${P_ALR.source}+)\\s+([\\.!\\?,])`, `g`);
 var F_SBP = new RegExp(`<\\b(sub|sup)\\b${P_TSX.source}(${P_NTG.source})${P_TCC.source}`, `gi`);
-var F_SLB = new RegExp(`(?<!${P_SPC.source}|${P_BL.source}) *${P_ALB.source} *(?![A-Z]|${P_BL.source}|\\d+?\\s[A-Z])`, `g`);
+var F_SLB = new RegExp(`(?<!${P_SPC.source}|${P_BL.source}) *${P_ALB.source} *(?! *(?:[A-Z]|${P_BL.source}|${CH_EJ.source}|\\d+?\\s[A-Z]))`, `gu`);
 var F_TSP = new RegExp(`(<\\/?${P_NTG.source})\\s*(${P_ALB.source}+\\s*>)`, `gi`);
 var M_ATT= new RegExp(`(${P_WDD.source})${P_SEQ.source}(?:(${P_QTS.source})(${P_ACN.source})\\2|([^\\s>]+))(?=\\s+${P_WDD.source}\\s*=|\\s*\\/?>|$)`, `gi`);
 var M_HP = new RegExp(`${P_SNC.source}[\\.\\!\\?]`);
@@ -590,7 +590,6 @@ function cHF(src, stl) {
   let txt = fxS(src.trim());
   const lns = sHF(txt).filter(ln => !M_OTG.test(ln[0])).filter(ln => !M_OPT.test(ln[0])),
   lsL = lns.length, hEd = Math.min((lsL * 0.2), lsL), fSt = Math.max(hEd, lsL - (lsL * 0.8));
-  console.log(`***AFTER SPLIT HEADER/FOOTER:***\n${lns}`);
   const hFr = jHF(lns.slice(fSt));
   let hdr = lns.slice(0, hEd), ftr = lns.slice(fSt);
   hdr = hdr.map(ln => [cTg(ln[0]).replace(F_PRD, "."), ln[1]]);
